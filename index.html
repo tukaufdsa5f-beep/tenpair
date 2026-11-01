@@ -309,6 +309,21 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
 .clear{font:inherit;font-weight:800;font-size:1.1rem;padding:6px 0;border-radius:999px;border:2px solid var(--line);background:var(--btn);color:var(--ink);cursor:pointer}
 .clear:active{transform:scale(.96)}
 
+/* tighter spacing while handwriting, so the pad can be bigger */
+#quizScreen.hand .qsub{margin-bottom:4px;gap:4px}
+#quizScreen.hand .qtitle{font-size:.9rem}
+#quizScreen.hand .progress{margin-bottom:4px}
+#quizScreen.hand .pg .box{aspect-ratio:auto;height:26px}
+#quizScreen.hand .qtop{margin-bottom:4px}
+#quizScreen.hand .stage{min-height:84px;margin-bottom:2px}
+#quizScreen.hand .stage .chara{width:44px;height:74px}
+#quizScreen.hand .bubble{height:58px;margin-bottom:14px}
+#quizScreen.hand .qboard{padding:3px 0}
+#quizScreen.hand .to{font-size:1.2rem;margin:0}
+#quizScreen.hand .qeq{margin:4px 0 8px}
+#quizScreen.hand .qeq .n{font-size:2.2rem}
+#quizScreen.hand .decide-row{margin-top:10px}
+
 @media (max-height:780px){
   .hint{margin-bottom:14px}
   .eq{margin:16px 0 4px} .n,#ans{font-size:3rem}
@@ -671,7 +686,12 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
   let SC=1;
   function fit(){
     const q=document.getElementById('quizScreen'), sec=q.hidden?document.getElementById('practice'):q;
-    const avail=document.querySelector('main').clientHeight, h=sec.offsetHeight;
+    const avail=document.querySelector('main').clientHeight;
+    const pw=document.getElementById('padWrap'), pr=document.getElementById('padRow');
+    const handOn=sec===q&&pr&&!pr.hidden;
+    if(handOn) pw.style.height='120px';
+    let h=sec.offsetHeight;
+    if(handOn){ pw.style.height=Math.max(120,Math.min(280,120+avail-h))+'px'; h=sec.offsetHeight; }
     SC=h>0?Math.min(1,avail/h):1;
     sec.style.transform=SC<1?'scale('+SC+')':'';
   }
@@ -753,7 +773,7 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
     bubble.className='bubble'+(cls?' '+cls:'');
     bMain.textContent=main; bSub.textContent=sub||'';
     void bubble.offsetWidth; bubble.classList.add('pop');
-    fit();
+    fit(); sizePad();
   }
   function renderProgress(justDone){
     boxes.forEach((bx,i)=>{
@@ -797,7 +817,7 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
   function clearFrames(list){ while(list.length) list.pop().remove(); }
 
   function renderQ(){
-    fit();
+    fit(); sizePad();
     for(let i=0;i<S;i++){
       T.dots[i].className='dot'+(i<a?'':(genius?' hide':' e'));
       T.cells[i].classList.toggle('blank',genius&&i>=a);
@@ -892,10 +912,10 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
   function applyMode(){
     handBtn.setAttribute('aria-pressed',hand?'true':'false');
     handBtn.textContent=hand?'＋− ボタン':'☝️ てがき';
-    btnControls.hidden=hand; padRow.hidden=!hand;
+    btnControls.hidden=hand; padRow.hidden=!hand; quizEl.classList.toggle('hand',hand);
     padWrap.classList.toggle('split',S===20);
   }
-  function promptText(){ return hand?'したは いくつかな？ すうじを かいてね':'したは いくつで '+S+'に なるかな？'; }
+  function promptText(){ return hand?'すうじを かいてね':'したは いくつで '+S+'に なるかな？'; }
 
   function newProblem(){
     do{ a=1+Math.floor(Math.random()*(S-1)); }while(a===lastA&&S>2);
