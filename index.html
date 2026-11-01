@@ -134,8 +134,11 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
 .stage .chara{width:58px;height:96px;flex:none}
 .bubble{flex:1;position:relative;background:var(--bubble);border:2px solid var(--line);border-radius:18px;
   padding:6px 10px;text-align:center;font-weight:800;height:76px;display:flex;flex-direction:column;justify-content:center;margin-bottom:22px}
-.bubble::after{content:"";position:absolute;bottom:-9px;left:50%;width:14px;height:14px;background:inherit;
-  border-right:2px solid var(--line);border-bottom:2px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.bubble::before,.bubble::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:0;height:0;border-style:solid;border-color:transparent;pointer-events:none}
+.bubble::before{top:100%;border-width:12px 11px 0 11px;border-top-color:var(--line)}
+.bubble::after{top:calc(100% - 1px);border-width:10px 9px 0 9px;border-top-color:var(--bubble)}
+.bubble.bad::after{border-top-color:var(--badbg)}
+.bubble .main,.bubble .sub{position:relative;z-index:1}
 .bubble .main{font-size:1.15rem;line-height:1.25}
 .bubble .sub{font-size:.85rem;line-height:1.3;color:var(--sub);font-weight:500}
 .bubble.pop{animation:pop .3s ease-out}
@@ -318,6 +321,8 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
 #quizScreen.hand .stage{min-height:84px;margin-bottom:2px}
 #quizScreen.hand .stage .chara{width:44px;height:74px}
 #quizScreen.hand .bubble{height:58px;margin-bottom:14px}
+#quizScreen.hand .bubble.ok .main{font-size:1.45rem}
+#quizScreen.hand .bubble.bad .main{font-size:1.3rem}
 #quizScreen.hand .qboard{padding:3px 0}
 #quizScreen.hand .to{font-size:1.2rem;margin:0}
 #quizScreen.hand .qeq{margin:4px 0 8px}
@@ -571,18 +576,17 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
   function now(){ const c=actx(); return (c&&soundOn)?c:null; }
   const sfx={
     ok(){ const c=now(); if(!c) return; const t=c.currentTime;
-      [[1318.5,0],[1046.5,.2],[1318.5,.46],[1046.5,.66]].forEach(([f,d])=>{ N(c,f,t+d,.38,'sine',.28); N(c,f*2,t+d,.2,'sine',.05); }); },
+      [[1318.5,0],[1046.5,.2],[1318.5,.46],[1046.5,.66]].forEach(([f,d])=>{ N(c,f,t+d,.38,'sine',.028); N(c,f*2,t+d,.2,'sine',.005); }); },
     ng(){ const c=now(); if(!c) return; const t=c.currentTime;
-      N(c,170,t,.14,'square',.09); N(c,170,t+.2,.55,'square',.09); },
+      N(c,170,t,.14,'square',.03); N(c,170,t+.2,.55,'square',.03); },
     roll(){ const c=now(); if(!c) return; const t=c.currentTime;
-      for(let i=0;i<22;i++) Z(c,t+i*.05,.05,1800,'bandpass',.04+i*.006); },
+      for(let i=0;i<22;i++) Z(c,t+i*.05,.05,1800,'bandpass',.02+i*.003); },
     cracker(){ const c=now(); if(!c) return; const t=c.currentTime;
-      [0,.28].forEach(o=>{ Z(c,t+o,.35,2200,'bandpass',.9); K(c,t+o,.35,300);
-        for(let i=0;i<10;i++) Z(c,t+o+.05+Math.random()*.45,.03,6000,'highpass',.18); }); },
+      [0,.28].forEach(o=>{ Z(c,t+o,.35,2200,'bandpass',.225); K(c,t+o,.0875,300);
+        for(let i=0;i<10;i++) Z(c,t+o+.05+Math.random()*.45,.03,6000,'highpass',.045); }); },
     fanfare(){ const c=now(); if(!c) return; const t=c.currentTime+.7;
-      [[392,0,.12],[523.25,.14,.12],[659.25,.28,.12],[783.99,.42,.25],[659.25,.7,.12],[783.99,.84,.6]].forEach(([f,d,l])=>{ N(c,f,t+d,l+.05,'sawtooth',.06); N(c,f,t+d,l+.05,'square',.04); }); }
+      [[392,0,.12],[523.25,.14,.12],[659.25,.28,.12],[783.99,.42,.25],[659.25,.7,.12],[783.99,.84,.6]].forEach(([f,d,l])=>{ N(c,f,t+d,l+.05,'sawtooth',.036); N(c,f,t+d,l+.05,'square',.024); }); }
   };
-  const NOTE=f=>f;
   const LOOPS={
     think:{bpm:100,step(c,t,i,dt){
       N(c,i%2?440:587.33,t,.07,'sine',i%2?.012:.02);
@@ -1083,7 +1087,7 @@ button:focus-visible,.toggle input:focus-visible{outline:3px solid var(--blue);o
       }
     }
     partyEl.hidden=false;
-    setMaster(0.3);
+    setMaster(0.4);
     sfx.cracker(); sfx.fanfare();
     later(()=>playLoop(th.music),1900);
   }
